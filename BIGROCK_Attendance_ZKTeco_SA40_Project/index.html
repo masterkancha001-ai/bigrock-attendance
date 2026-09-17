@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIGROCK Attendance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">BR</div><div><b>BIGROCK</b><span>Attendance</span></div></div>
+      <nav>
+        <button class="nav-btn active" data-view="dashboard">📊 Dashboard</button>
+        <button class="nav-btn" data-view="attendance">🕘 Attendance</button>
+        <button class="nav-btn" data-view="staff">👥 Staff</button>
+        <button class="nav-btn" data-view="reports">📥 Reports</button>
+        <button class="nav-btn" data-view="device">🔐 Fingerprint</button>
+        <button class="nav-btn" data-view="settings">⚙️ Settings</button>
+      </nav>
+      <div class="side-note">Local-first system<br>Camera + Excel ready</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><h1 id="pageTitle">Dashboard</h1><p id="todayLabel"></p></div>
+        <div class="clock" id="liveClock">--:--:--</div>
+      </header>
+
+      <section id="dashboard" class="view active">
+        <div class="cards">
+          <div class="stat"><span>👥 Total Staff</span><strong id="statStaff">0</strong></div>
+          <div class="stat"><span>🟢 Present</span><strong id="statPresent">0</strong></div>
+          <div class="stat"><span>🕐 Working Now</span><strong id="statWorking">0</strong></div>
+          <div class="stat danger"><span>⚠️ Break > 1 Hour</span><strong id="statOver">0</strong></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Today's Attendance</h2><input id="dashSearch" placeholder="Search staff..."></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>IN</th><th>OUT</th><th>Duty</th><th>Break</th><th>Status</th></tr></thead><tbody id="dashTable"></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="attendance" class="view">
+        <div class="panel action-panel">
+          <div class="panel-head"><h2>Mark Attendance</h2><span class="muted">Select employee, capture photo, then choose action.</span></div>
+          <div class="attendance-grid">
+            <div>
+              <label>Employee</label><select id="employeeSelect"></select>
+              <div class="photo-box"><video id="camera" autoplay playsinline></video><canvas id="canvas" hidden></canvas><img id="photoPreview" alt="Captured photo"></div>
+              <div class="row"><button class="btn" id="startCamera">📷 Start Camera</button><button class="btn secondary" id="capturePhoto">Capture</button></div>
+            </div>
+            <div class="action-buttons">
+              <button class="big-btn in" data-action="dutyIn">🟢 Duty IN</button>
+              <button class="big-btn out" data-action="dutyOut">🔴 Duty OUT</button>
+              <button class="big-btn lunch" data-action="lunchOut">🍱 Lunch OUT</button>
+              <button class="big-btn lunch" data-action="lunchIn">🍱 Lunch IN</button>
+              <button class="big-btn break" data-action="breakOut">☕ Break OUT</button>
+              <button class="big-btn break" data-action="breakIn">☕ Break IN</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>Today's Event Log</h2></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Employee</th><th>Action</th><th>Photo</th></tr></thead><tbody id="eventTable"></tbody></table></div></div>
+      </section>
+
+      <section id="staff" class="view">
+        <div class="panel">
+          <div class="panel-head"><h2>Staff Master</h2><button class="btn primary" id="addStaffBtn">＋ Add Staff</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Photo</th><th>ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Actions</th></tr></thead><tbody id="staffTable"></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="reports" class="view">
+        <div class="panel">
+          <div class="panel-head"><h2>Excel Reports</h2><span class="muted">Export attendance and staff data.</span></div>
+          <div class="export-grid">
+            <div class="export-card"><h3>Today's Attendance</h3><p>One row per employee with IN/OUT, duty and break totals.</p><button class="btn primary" id="exportToday">⬇ Export Today Excel</button></div>
+            <div class="export-card"><h3>All Attendance Events</h3><p>Complete event-level history stored in this browser.</p><button class="btn primary" id="exportEvents">⬇ Export Events Excel</button></div>
+            <div class="export-card"><h3>Staff Master</h3><p>Employee master data.</p><button class="btn primary" id="exportStaff">⬇ Export Staff Excel</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="device" class="view">
+        <div class="panel">
+          <div class="panel-head"><h2>ZKTeco BioPro SA40</h2><span id="deviceBadge" class="status warn">Connector Offline</span></div>
+          <p class="muted">Connect the SA40 through the office LAN using TCP/IP. Default ZK communication port is 4370.</p>
+          <div class="device-grid">
+            <label>Device IP<input id="deviceIp" placeholder="192.168.1.201"></label>
+            <label>TCP Port<input id="devicePort" type="number" value="4370"></label>
+            <label>Comm Key<input id="deviceKey" type="number" value="0"></label>
+          </div>
+          <div class="row">
+            <button class="btn primary" id="deviceSave">Save Device</button>
+            <button class="btn" id="deviceTest">🔌 Test Connection</button>
+            <button class="btn" id="deviceSync">🔄 Sync Attendance</button>
+          </div>
+          <div id="deviceInfo" class="device-info"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Fingerprint Sync</h2></div>
+          <p>Fingerprint scans from the SA40 are imported using the employee's <b>Employee ID / User ID</b>. The first punch of a duty session becomes Duty IN and the next punch becomes Duty OUT. Lunch and break events remain available through the website buttons unless work-code/status support is configured on the device.</p>
+          <div id="zkUsers" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <section id="settings" class="view">
+        <div class="panel settings">
+          <h2>System Settings</h2>
+          <label>Office duty target (hours)<input type="number" id="dutyTarget" min="1" max="24" step=".5"></label>
+          <label>Maximum total break (minutes)<input type="number" id="breakLimit" min="1" max="1440"></label>
+          <button class="btn primary" id="saveSettings">Save Settings</button>
+          <hr>
+          <h3>Data Backup</h3><button class="btn" id="backup">⬇ Download JSON Backup</button>
+          <label class="file-label">Restore JSON Backup<input type="file" id="restore" accept=".json"></label>
+          <button class="btn danger-btn" id="clearData">Delete All Local Data</button>
+          <p class="muted">Data is stored locally in this browser using IndexedDB. Clearing browser/site data can remove it, so keep regular backups.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="staffDialog">
+    <form method="dialog" id="staffForm">
+      <h2 id="dialogTitle">Add Staff</h2>
+      <input type="hidden" id="staffId">
+      <label>Employee ID<input id="fEmpId" required></label>
+      <label>Name<input id="fName" required></label>
+      <label>Department<input id="fDept"></label>
+      <label>Designation<input id="fDesig"></label>
+      <label>Staff Photo<input id="fPhoto" type="file" accept="image/*"></label>
+      <div class="dialog-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="saveStaff" value="default">Save</button></div>
+    </form>
+  </dialog>
+  <script src="script.js"></script>
+</body>
+</html>

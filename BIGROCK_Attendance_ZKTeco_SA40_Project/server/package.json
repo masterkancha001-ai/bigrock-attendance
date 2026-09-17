@@ -1,0 +1,13 @@
+{
+  "name": "bigrock-attendance-zkteco",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BIGROCK Attendance with ZKTeco BioPro SA40 LAN connector",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-zklib": "^1.0.0"
+  }
+}
